@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
         return 0;
     }
     ros::param::param<int>("~framerate",frame_rate, 30);
-    ros::param::param<bool>("~localdispaly", local_display, false);
+    ros::param::param<bool>("~localdisplay", local_display, false);
 
     image_transport::ImageTransport it(nh);
     image_transport::Publisher img_pub = it.advertise("/usb_cam/image_raw",1);
