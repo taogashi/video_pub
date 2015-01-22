@@ -3,6 +3,9 @@
 #include <opencv2/opencv.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <string>
+#include <termios.h>
+
+int getch();
 
 int main(int argc, char* argv[])
 {
@@ -44,21 +47,53 @@ int main(int argc, char* argv[])
 
     cv_img.encoding = "rgb8";
 
+    bool paused = false;
+
     while(ros::ok())
     {
-        cap >> cv_img.image;
-        if (cv_img.image.empty())
+        if (32 == getch())
         {
-            ROS_INFO("end.");
-            return 0;
+            if (!paused)
+            {
+                ROS_INFO_STREAM("paused.");
+                paused = true;
+            }
+            else
+                paused = false;
         }
-        cv_img.header.stamp = ros::Time::now();
-        img_pub.publish(cv_img.toImageMsg());
-        ROS_INFO_STREAM("frame: "<<frame_cnt++);
-        if (local_display)
-            cv::imshow("image", cv_img.image);
+
+        if (!paused)
+        {
+            cap >> cv_img.image;
+            if (cv_img.image.empty())
+            {
+                ROS_INFO("end.");
+                return 0;
+            }
+            cv_img.header.stamp = ros::Time::now();
+            img_pub.publish(cv_img.toImageMsg());
+            ROS_INFO_STREAM("frame: "<<frame_cnt++);
+            if (local_display)
+                cv::imshow("image", cv_img.image);
+        }
         loop_rate.sleep();
     }
 
     return 0;
+}
+
+int getch()
+{
+    static struct termios oldt, newt;
+    tcgetattr( STDIN_FILENO, &oldt);           // save old settings
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON);                 // disable buffering      
+    newt.c_cc[VMIN] = 0;
+    newt.c_cc[VTIME] = 0;
+    tcsetattr( STDIN_FILENO, TCSANOW, &newt);  // apply new settings
+
+    int c = getchar();  // read character (non-blocking)
+
+    tcsetattr( STDIN_FILENO, TCSANOW, &oldt);  // restore old settings
+    return c;
 }
