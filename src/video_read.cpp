@@ -15,6 +15,7 @@ int main(int argc, char* argv[])
     std::string filename;
     int frame_rate;
     bool local_display;
+    int skip;
 
     if (!ros::param::get("~videosrc",filename))
     {
@@ -23,6 +24,7 @@ int main(int argc, char* argv[])
     }
     ros::param::param<int>("~framerate",frame_rate, 30);
     ros::param::param<bool>("~localdisplay", local_display, false);
+    ros::param::param<int>("~skip", skip, 0);
 
     image_transport::ImageTransport it(nh);
     image_transport::Publisher img_pub = it.advertise("/usb_cam/image_raw",1);
@@ -48,6 +50,15 @@ int main(int argc, char* argv[])
     cv_img.encoding = "rgb8";
 
     bool paused = false;
+
+    int cnt = 0;
+    while (cnt < skip) {
+	cap >> cv_img.image;
+	if (cv_img.image.empty()) {
+		ROS_ERROR("shit...");
+	}
+	cnt++;
+    }
 
     while(ros::ok())
     {
