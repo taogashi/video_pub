@@ -1,28 +1,21 @@
-- Nodes
-  - video\_pub\_node
-
-    The video\_pub\_node reads video file with OpenCV api and publishes ROS sensor\_msgs::image via cv_bridge.
-  - published topics
-
+## Nodes
+### video\_pub\_node
+The video\_pub\_node reads video file with OpenCV api and publishes ROS sensor\_msgs::image via cv_bridge.
+- published topics
     /usb_cam/image_raw (compatiable with usb_cam)
-  - parameters
-
-    ~videosrc
-    
-      video file, full path.
-      
-    ~framerate
-    
-      frame rate of published topic.
-      
-    ~localdisplay
-    
-      bool value, choose whether to display the image locally.
+- parameters
+    *~videosrc* video file, full path. 
+    *~framerate* frame rate of published topic.
+    *~localdisplay* bool value, choose whether to display the image locally.
+    *~skip* number of frames to skip
       
 - Example
-
-  rosrun video\_pub video\_pub\_node \_videosrc:=<_full path to video file_> \_framerate:=30
-
+```
+  rosrun video_pub video_pub_node _videosrc:=<full path to video file> _framerate:=30
+```
+```
+  rosrun video_pub video_pub_node _videosrc:=<full path to the video file> _framerate:=60 _skip:=1000
+```
 - Hotkey
 
   Hit space to pause/replay.

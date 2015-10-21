@@ -28,6 +28,7 @@ int main(int argc, char* argv[])
 
     image_transport::ImageTransport it(nh);
     image_transport::Publisher img_pub = it.advertise("/usb_cam/image_raw",1);
+    ros::Rate loop_rate(frame_rate);
 
     cv::VideoCapture cap(filename);
     if (!cap.isOpened())
@@ -36,7 +37,17 @@ int main(int argc, char* argv[])
         return 0;
     }
 
+    int cnt = 0;
+    while (cnt < skip) {
+	if (!cap.grab()) {
+		ROS_ERROR("shit...");
+	}
+	cnt++;
+    }
+
     cv_bridge::CvImage cv_img;
+    unsigned int frame_cnt = skip;
+    cv_img.encoding = "rgb8";
 
     if (local_display)
     {
@@ -44,22 +55,7 @@ int main(int argc, char* argv[])
         cv::startWindowThread();
     }
 
-    ros::Rate loop_rate(frame_rate);
-    unsigned int frame_cnt=0;
-
-    cv_img.encoding = "rgb8";
-
     bool paused = false;
-
-    int cnt = 0;
-    while (cnt < skip) {
-	cap >> cv_img.image;
-	if (cv_img.image.empty()) {
-		ROS_ERROR("shit...");
-	}
-	cnt++;
-    }
-
     while(ros::ok())
     {
         if (32 == getch())
