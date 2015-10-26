@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 
     cv_bridge::CvImage cv_img;
     unsigned int frame_cnt = skip;
-    cv_img.encoding = "rgb8";
+    cv_img.encoding = "bgr8";
 
     if (local_display)
     {
